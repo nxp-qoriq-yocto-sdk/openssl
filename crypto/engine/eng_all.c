@@ -122,15 +122,3 @@ void ENGINE_load_builtin_engines(void)
 #endif
     ENGINE_register_all_complete();
 }
-
-#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(HAVE_CRYPTODEV)
-void ENGINE_setup_bsd_cryptodev(void)
-{
-    static int bsd_cryptodev_default_loaded = 0;
-    if (!bsd_cryptodev_default_loaded) {
-        ENGINE_load_cryptodev();
-        ENGINE_register_all_complete();
-    }
-    bsd_cryptodev_default_loaded = 1;
-}
-#endif
