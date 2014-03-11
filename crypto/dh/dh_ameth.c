@@ -422,6 +422,13 @@ static int dh_copy_parameters(EVP_PKEY *to, const EVP_PKEY *from)
 	if (to->pkey.dh->g != NULL)
 		BN_free(to->pkey.dh->g);
 	to->pkey.dh->g=a;
+	if ((a=BN_dup(from->pkey.dh->q)) != NULL) {
+		if (to->pkey.dh->q != NULL)
+			BN_free(to->pkey.dh->q);
+		to->pkey.dh->q=a;
+	}
+
+	to->pkey.dh->length = from->pkey.dh->length;
 
 	return 1;
 	}
