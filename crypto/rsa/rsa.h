@@ -97,6 +97,29 @@ struct rsa_meth_st {
     /* Can be null */
     int (*bn_mod_exp) (BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
                        const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
+    /*
+     * Cookie in the following _async variant must be allocated before
+     * submission and can be freed once its corresponding callback
+     * handler is called
+     */
+     int (*rsa_pub_enc_asyn)(int flen,const unsigned char *from,
+			   unsigned char *to, RSA *rsa, int padding,
+			   struct pkc_cookie_s *cookie);
+     int (*rsa_pub_dec_async)(int flen,const unsigned char *from,
+			   unsigned char *to, RSA *rsa, int padding,
+			   struct pkc_cookie_s *cookie);
+     int (*rsa_priv_enc_async)(int flen,const unsigned char *from,
+			    unsigned char *to, RSA *rsa, int padding,
+			    struct pkc_cookie_s *cookie);
+     int (*rsa_priv_dec_async)(int flen,const unsigned char *from,
+			    unsigned char *to, RSA *rsa, int padding,
+			    struct pkc_cookie_s *cookie);
+     int (*rsa_mod_exp_async)(BIGNUM *r0, const BIGNUM *I, RSA *rsa,
+			    BN_CTX *ctx, struct pkc_cookie_s *cookie);
+     int (*bn_mod_exp_async)(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
+			  const BIGNUM *m, BN_CTX *ctx,
+			  BN_MONT_CTX *m_ctx, struct pkc_cookie_s *cookie);
+
     /* called at new */
     int (*init) (RSA *rsa);
     /* called at free */

@@ -551,6 +551,30 @@ ENGINE *ENGINE_new(void);
 int ENGINE_free(ENGINE *e);
 int ENGINE_up_ref(ENGINE *e);
 int ENGINE_set_id(ENGINE *e, const char *id);
+void ENGINE_set_init_instance(ENGINE *e, void *(*engine_init_instance)(void));
+void ENGINE_set_close_instance(ENGINE *e,
+	void (*engine_free_instance)(void *));
+/*
+ * Following FLAGS are bitmap store in async_map to set asynchronous interface capability
+ *of the engine
+ */
+#define ENGINE_RSA_ASYNC 0x0001
+#define ENGINE_DSA_ASYNC 0x0002
+#define ENGINE_DH_ASYNC 0x0004
+#define ENGINE_ECDSA_ASYNC 0x0008
+#define ENGINE_ECDH_ASYNC 0x0010
+#define ENGINE_ALLPKC_ASYNC 0x001F
+/* Engine implementation will set the bitmap based on above flags using following API */
+void ENGINE_set_async_map(ENGINE *e, int async_map);
+ /* Application need to check the bitmap based on above flags using following API
+  * to confirm asynchronous methods supported
+  */
+int ENGINE_get_async_map(ENGINE *e);
+void *ENGINE_init_instance(ENGINE *e);
+void ENGINE_close_instance(ENGINE *e, void *eng_handle);
+void ENGINE_set_check_pkc_availability(ENGINE *e,
+	int (*check_pkc_availability)(void *eng_handle));
+int ENGINE_check_pkc_availability(ENGINE *e, void *eng_handle);
 int ENGINE_set_name(ENGINE *e, const char *name);
 int ENGINE_set_RSA(ENGINE *e, const RSA_METHOD *rsa_meth);
 int ENGINE_set_DSA(ENGINE *e, const DSA_METHOD *dsa_meth);

@@ -68,6 +68,9 @@ struct ecdh_method {
                         EC_KEY *ecdh, void *(*KDF) (const void *in,
                                                     size_t inlen, void *out,
                                                     size_t *outlen));
+    int (*compute_key_async)(void *key, size_t outlen, const EC_POINT *pub_key, EC_KEY *ecdh,
+	                   void *(*KDF)(const void *in, size_t inlen, void *out, size_t *outlen),
+	                   struct pkc_cookie_s *cookie);
 # if 0
     int (*init) (EC_KEY *eckey);
     int (*finish) (EC_KEY *eckey);

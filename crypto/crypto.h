@@ -655,6 +655,22 @@ void ERR_load_CRYPTO_strings(void);
 # define CRYPTO_R_FIPS_MODE_NOT_SUPPORTED                 101
 # define CRYPTO_R_NO_DYNLOCK_CREATE_CALLBACK              100
 
+/* Additions for Asynchronous PKC Infrastructure */
+struct pkc_cookie_s {
+	void *cookie; /* To be filled by openssl library primitive method function caller */
+	void *eng_cookie; /* To be filled by Engine */
+	 /*
+	   * Callback handler to be provided by caller. Ensure to pass a
+	   * handler which takes the crypto operation to completion.
+	   * cookie: Container cookie from library
+	   * status: Status of the crypto Job completion.
+	   *		0: Job handled without any issue
+	   *		-EINVAL: Parameters Invalid
+	   */
+	void (*pkc_callback)(struct pkc_cookie_s *cookie, int status);
+	void *eng_handle;
+};
+
 #ifdef  __cplusplus
 }
 #endif

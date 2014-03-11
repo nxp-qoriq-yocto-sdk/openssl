@@ -198,6 +198,29 @@ struct engine_st {
     ENGINE_LOAD_KEY_PTR load_privkey;
     ENGINE_LOAD_KEY_PTR load_pubkey;
     ENGINE_SSL_CLIENT_CERT_PTR load_ssl_client_cert;
+	/*
+	 * Instantiate Engine handle to be passed in check_pkc_availability
+	 * Ensure that Engine is instantiated before any pkc asynchronous call.
+	 */
+	void *(*engine_init_instance)(void);
+	/*
+	 * Instantiated Engine handle will be closed with this call.
+	 * Ensure that no pkc asynchronous call is made after this call
+	 */
+	void (*engine_close_instance)(void *handle);
+	/*
+	 * Check availability will extract the data from kernel.
+	 * eng_handle: This is the Engine handle corresponds to which
+	 * the cookies needs to be polled.
+	 * return 0 if cookie available else 1
+	 */
+	int (*check_pkc_availability)(void *eng_handle);
+	/*
+	 * The following map is used to check if the engine supports asynchronous implementation
+	 * ENGINE_ASYNC_FLAG* for available bitmap. Any application checking for asynchronous
+	 * implementation need to check this features using "int ENGINE_get_async_map(engine *)";
+	 */
+	int async_map;
     const ENGINE_CMD_DEFN *cmd_defns;
     int flags;
     /* reference count on the structure itself */
