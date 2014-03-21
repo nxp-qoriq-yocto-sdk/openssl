@@ -248,6 +248,8 @@ static struct {
 	{ CRYPTO_CAST_CBC,      NID_cast5_cbc,    8,  16, 0},
 	{ CRYPTO_SKIPJACK_CBC,  NID_undef,        0,  0,  0},
 	{ CRYPTO_TLS10_AES_CBC_HMAC_SHA1, NID_aes_128_cbc_hmac_sha1, 16, 16, 20},
+	{ CRYPTO_TLS10_AES_CBC_HMAC_SHA1, NID_aes_192_cbc_hmac_sha1, 16, 24, 20},
+	{ CRYPTO_TLS10_AES_CBC_HMAC_SHA1, NID_aes_256_cbc_hmac_sha1, 16, 32, 20},
 	{ 0, NID_undef,	0, 0, 0},
 };
 
@@ -536,6 +538,8 @@ static int cryptodev_aead_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 	/* TODO: make a seamless integration with cryptodev flags */
 	switch (ctx->cipher->nid) {
 	case NID_aes_128_cbc_hmac_sha1:
+	case NID_aes_192_cbc_hmac_sha1:
+	case NID_aes_256_cbc_hmac_sha1:
 		cryp.flags = COP_FLAG_AEAD_TLS_TYPE;
 	}
 	cryp.ses = sess->ses;
@@ -729,6 +733,8 @@ static int cryptodev_cbc_hmac_sha1_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg,
 		/* TODO: this should be an extension of EVP_CIPHER struct */
 		switch (ctx->cipher->nid) {
 		case NID_aes_128_cbc_hmac_sha1:
+		case NID_aes_192_cbc_hmac_sha1:
+		case NID_aes_256_cbc_hmac_sha1:
 			maclen = SHA_DIGEST_LENGTH;
 		}
 
@@ -871,6 +877,33 @@ const EVP_CIPHER cryptodev_aes_128_cbc_hmac_sha1 = {
 	NULL
 };
 
+const EVP_CIPHER cryptodev_aes_192_cbc_hmac_sha1 = {
+	NID_aes_192_cbc_hmac_sha1,
+	16, 24, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
+const EVP_CIPHER cryptodev_aes_256_cbc_hmac_sha1 = {
+	NID_aes_256_cbc_hmac_sha1,
+	16, 32, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
 /*
  * Registered by the ENGINE when used to find out how to deal with
  * a particular NID in the ENGINE. this says what we'll do at the
@@ -910,6 +943,12 @@ cryptodev_engine_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 		break;
 	case NID_aes_128_cbc_hmac_sha1:
 		*cipher = &cryptodev_aes_128_cbc_hmac_sha1;
+		break;
+	case NID_aes_192_cbc_hmac_sha1:
+		*cipher = &cryptodev_aes_192_cbc_hmac_sha1;
+		break;
+	case NID_aes_256_cbc_hmac_sha1:
+		*cipher = &cryptodev_aes_256_cbc_hmac_sha1;
 		break;
 	default:
 		*cipher = NULL;
@@ -3830,6 +3869,8 @@ ENGINE_load_cryptodev(void)
 	put_dev_crypto(fd);
 
 	EVP_add_cipher(&cryptodev_aes_128_cbc_hmac_sha1);
+	EVP_add_cipher(&cryptodev_aes_192_cbc_hmac_sha1);
+	EVP_add_cipher(&cryptodev_aes_256_cbc_hmac_sha1);
 	if (!ENGINE_set_id(engine, "cryptodev") ||
 	    !ENGINE_set_name(engine, "BSD cryptodev engine") ||
 	    !ENGINE_set_ciphers(engine, cryptodev_engine_ciphers) ||
