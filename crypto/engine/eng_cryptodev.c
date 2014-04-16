@@ -2018,7 +2018,7 @@ static int cryptodev_rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb)
     int i;
 
     if ((fd = get_asym_dev_crypto()) < 0)
-        return fd;
+        goto sw_try;
 
     if (!rsa->n && ((rsa->n = BN_new()) == NULL))
         goto err;
@@ -2047,7 +2047,7 @@ static int cryptodev_rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb)
     /* p length */
     kop.crk_param[kop.crk_iparams].crp_p = calloc(p_len + 1, sizeof(char));
     if (!kop.crk_param[kop.crk_iparams].crp_p)
-        goto err;
+        goto sw_try;
     kop.crk_param[kop.crk_iparams].crp_nbits = p_len * 8;
     memset(kop.crk_param[kop.crk_iparams].crp_p, 0xff, p_len + 1);
     kop.crk_iparams++;
@@ -2055,7 +2055,7 @@ static int cryptodev_rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb)
     /* q length */
     kop.crk_param[kop.crk_iparams].crp_p = calloc(q_len + 1, sizeof(char));
     if (!kop.crk_param[kop.crk_iparams].crp_p)
-        goto err;
+        goto sw_try;
     kop.crk_param[kop.crk_iparams].crp_nbits = q_len * 8;
     memset(kop.crk_param[kop.crk_iparams].crp_p, 0xff, q_len + 1);
     kop.crk_iparams++;
@@ -2115,8 +2115,10 @@ static int cryptodev_rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb)
     }
  sw_try:
     {
-        const RSA_METHOD *meth = RSA_PKCS1_SSLeay();
-        ret = (meth->rsa_keygen) (rsa, bits, e, cb);
+        const RSA_METHOD *meth = rsa->meth;
+        rsa->meth = RSA_PKCS1_SSLeay();
+        ret = RSA_generate_key_ex(rsa, bits, e, cb);
+        rsa->meth = meth;
     }
     return ret;
 
