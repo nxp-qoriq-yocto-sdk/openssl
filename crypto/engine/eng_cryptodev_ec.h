@@ -287,11 +287,4 @@ static inline unsigned char *eng_copy_curve_points(BIGNUM * x, BIGNUM * y,
 
 	return xy;
 }
-
-enum curve_t {
-	DISCRETE_LOG,
-	ECC_PRIME,
-	ECC_BINARY,
-	MAX_ECC_TYPE
-};
 #endif

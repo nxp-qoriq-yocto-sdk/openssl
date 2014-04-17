@@ -2504,11 +2504,6 @@ static ECDSA_METHOD cryptodev_ecdsa = {
     NULL                        /* app_data */
 };
 
-typedef enum ec_curve_s {
-    EC_PRIME,
-    EC_BINARY
-} ec_curve_t;
-
 /* ENGINE handler for ECDSA Sign */
 static ECDSA_SIG *cryptodev_ecdsa_do_sign(const unsigned char *dgst,
                                           int dgst_len, const BIGNUM *in_kinv,
@@ -2527,7 +2522,7 @@ static ECDSA_SIG *cryptodev_ecdsa_do_sign(const unsigned char *dgst,
     const BIGNUM *order = NULL, *priv_key = NULL;
     const EC_GROUP *group = NULL;
     struct crypt_kop kop;
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
 
     memset(&kop, 0, sizeof(kop));
     ecdsa = ecdsa_check(eckey);
@@ -2665,7 +2660,7 @@ static ECDSA_SIG *cryptodev_ecdsa_do_sign(const unsigned char *dgst,
             else
                 goto err;
         }
-        kop.curve_type = ECC_BINARY;
+        kop.curve_type = EC_BINARY;
     }
 
     /* Calculation of Generator point */
@@ -2760,7 +2755,7 @@ static int cryptodev_ecdsa_verify(const unsigned char *dgst, int dgst_len,
     const EC_POINT *pub_key = NULL;
     const BIGNUM *order = NULL;
     const EC_GROUP *group = NULL;
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
     struct crypt_kop kop;
 
     memset(&kop, 0, sizeof kop);
@@ -2911,7 +2906,7 @@ static int cryptodev_ecdsa_verify(const unsigned char *dgst, int dgst_len,
             else
                 goto err;
         }
-        kop.curve_type = ECC_BINARY;
+        kop.curve_type = EC_BINARY;
     }
 
     /* Calculation of Generator point */
@@ -3016,7 +3011,7 @@ static int cryptodev_ecdsa_do_sign_async(const unsigned char *dgst,
     const BIGNUM *order = NULL, *priv_key = NULL;
     const EC_GROUP *group = NULL;
     struct crypt_kop *kop = malloc(sizeof(struct crypt_kop));
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
 
     if (!(sig->r = BN_new()) || !kop)
         goto err;
@@ -3157,7 +3152,7 @@ static int cryptodev_ecdsa_do_sign_async(const unsigned char *dgst,
             else
                 goto err;
         }
-        kop->curve_type = ECC_BINARY;
+        kop->curve_type = EC_BINARY;
     }
 
     /* Calculation of Generator point */
@@ -3237,7 +3232,7 @@ static int cryptodev_ecdsa_verify_async(const unsigned char *dgst,
     const EC_POINT *pub_key = NULL;
     const BIGNUM *order = NULL;
     const EC_GROUP *group = NULL;
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
     struct crypt_kop *kop = malloc(sizeof(struct crypt_kop));
 
     if (!kop)
@@ -3384,7 +3379,7 @@ static int cryptodev_ecdsa_verify_async(const unsigned char *dgst,
     if (ec_crv == EC_BINARY) {
         /* copy b' i.e c(b), instead of only b */
         eng_ec_get_cparam(EC_GROUP_get_curve_name(group), ab + q_len, q_len);
-        kop->curve_type = ECC_BINARY;
+        kop->curve_type = EC_BINARY;
     }
 
     /* Calculation of Generator point */
@@ -3690,7 +3685,7 @@ int cryptodev_ecdh_compute_key(void *out, size_t outlen,
                                void *(*KDF) (const void *in, size_t inlen,
                                              void *out, size_t *outlen))
 {
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
     unsigned char *q = NULL, *w_xy = NULL, *ab = NULL, *s = NULL, *r = NULL;
     BIGNUM *w_x = NULL, *w_y = NULL;
     int q_len = 0, ab_len = 0, pub_key_len = 0, r_len = 0, priv_key_len = 0;
@@ -3820,9 +3815,9 @@ int cryptodev_ecdh_compute_key(void *out, size_t outlen,
             else
                 goto err;
         }
-        kop.curve_type = ECC_BINARY;
+        kop.curve_type = EC_BINARY;
     } else
-        kop.curve_type = ECC_PRIME;
+        kop.curve_type = EC_PRIME;
 
     priv_key_len = r_len;
 
@@ -3874,7 +3869,7 @@ int cryptodev_ecdh_compute_key_async(void *out, size_t outlen,
                                                    size_t *outlen),
                                      struct pkc_cookie_s *cookie)
 {
-    ec_curve_t ec_crv = EC_PRIME;
+    enum ec_curve_t ec_crv = EC_PRIME;
     unsigned char *q = NULL, *w_xy = NULL, *ab = NULL, *s = NULL, *r = NULL;
     BIGNUM *w_x = NULL, *w_y = NULL;
     int q_len = 0, ab_len = 0, pub_key_len = 0, r_len = 0, priv_key_len = 0;
@@ -4005,9 +4000,9 @@ int cryptodev_ecdh_compute_key_async(void *out, size_t outlen,
             else
                 goto err;
         }
-        kop->curve_type = ECC_BINARY;
+        kop->curve_type = EC_BINARY;
     } else
-        kop->curve_type = ECC_PRIME;
+        kop->curve_type = EC_PRIME;
 
     priv_key_len = r_len;
 
