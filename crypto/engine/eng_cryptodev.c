@@ -3502,7 +3502,7 @@ static int cryptodev_dh_keygen_async(DH *dh, struct pkc_cookie_s *cookie)
     kop->crk_op = CRK_DH_GENERATE_KEY;
     if (bn2crparam(dh->p, &kop->crk_param[0]))
         goto sw_try;
-    if (bn2crparam(dh->q, &kop->crk_param[1]))
+    if (!dh->q || bn2crparam(dh->q, &kop->crk_param[1]))
         goto sw_try;
     kop->crk_param[2].crp_p = g;
     kop->crk_param[2].crp_nbits = g_len * 8;
@@ -3557,7 +3557,7 @@ static int cryptodev_dh_keygen(DH *dh)
     kop.crk_op = CRK_DH_GENERATE_KEY;
     if (bn2crparam(dh->p, &kop.crk_param[0]))
         goto sw_try;
-    if (bn2crparam(dh->q, &kop.crk_param[1]))
+    if (!dh->q || bn2crparam(dh->q, &kop.crk_param[1]))
         goto sw_try;
     kop.crk_param[2].crp_p = g;
     kop.crk_param[2].crp_nbits = g_len * 8;
