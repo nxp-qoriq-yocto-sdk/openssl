@@ -2075,8 +2075,10 @@ static int cryptodev_dsa_keygen(DSA *dsa)
 	return ret;
 sw_try:
 	{
-		const DSA_METHOD *meth = DSA_OpenSSL();
-		ret = (meth->dsa_keygen)(dsa);
+		const DSA_METHOD *meth = dsa->meth;
+		dsa->meth = DSA_OpenSSL();
+		ret = DSA_generate_key(dsa);
+		dsa->meth = meth;
 	}
 	return ret;
 }
@@ -2130,11 +2132,13 @@ static int cryptodev_dsa_keygen_async(DSA *dsa,  struct pkc_cookie_s *cookie)
 	return ret;
 sw_try:
 	{
-		const DSA_METHOD *meth = DSA_OpenSSL();
+		const DSA_METHOD *meth = dsa->meth;
 
+		dsa->meth = DSA_OpenSSL();
 		if (kop)
 			free(kop);
-		ret = (meth->dsa_keygen)(dsa);
+		ret = DSA_generate_key(dsa);
+		dsa->meth = meth;
 		cookie->pkc_callback(cookie, 0);
 	}
 	return ret;
