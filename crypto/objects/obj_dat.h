@@ -62,9 +62,9 @@
  * [including the GNU Public Licence.]
  */
 
-#define NUM_NID 920
-#define NUM_SN 913
-#define NUM_LN 913
+#define NUM_NID 921
+#define NUM_SN 914
+#define NUM_LN 914
 #define NUM_OBJ 857
 
 static const unsigned char lvalues[5974]={
@@ -2399,6 +2399,8 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 {"AES-256-CBC-HMAC-SHA1","aes-256-cbc-hmac-sha1",
 	NID_aes_256_cbc_hmac_sha1,0,NULL,0},
 {"RSAES-OAEP","rsaesOaep",NID_rsaesOaep,9,&(lvalues[5964]),0},
+{"DES-EDE3-CBC-HMAC-SHA1","des-ede3-cbc-hmac-sha1",
+	NID_des_ede3_cbc_hmac_sha1,0,NULL,0},
 };
 
 static const unsigned int sn_objs[NUM_SN]={
@@ -2474,6 +2476,7 @@ static const unsigned int sn_objs[NUM_SN]={
 62,	/* "DES-EDE-OFB" */
 33,	/* "DES-EDE3" */
 44,	/* "DES-EDE3-CBC" */
+920,	/* "DES-EDE3-CBC-HMAC-SHA1" */
 61,	/* "DES-EDE3-CFB" */
 658,	/* "DES-EDE3-CFB1" */
 659,	/* "DES-EDE3-CFB8" */
@@ -3585,6 +3588,7 @@ static const unsigned int ln_objs[NUM_LN]={
 62,	/* "des-ede-ofb" */
 33,	/* "des-ede3" */
 44,	/* "des-ede3-cbc" */
+920,	/* "des-ede3-cbc-hmac-sha1" */
 61,	/* "des-ede3-cfb" */
 658,	/* "des-ede3-cfb1" */
 659,	/* "des-ede3-cfb8" */

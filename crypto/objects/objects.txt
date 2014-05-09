@@ -1290,3 +1290,4 @@ kisa 1 6                : SEED-OFB      : seed-ofb
 			: AES-128-CBC-HMAC-SHA1		: aes-128-cbc-hmac-sha1
 			: AES-192-CBC-HMAC-SHA1		: aes-192-cbc-hmac-sha1
 			: AES-256-CBC-HMAC-SHA1		: aes-256-cbc-hmac-sha1
+			: DES-EDE3-CBC-HMAC-SHA1	: des-ede3-cbc-hmac-sha1
