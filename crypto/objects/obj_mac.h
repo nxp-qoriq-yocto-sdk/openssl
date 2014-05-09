@@ -4047,6 +4047,10 @@
 #define LN_aes_256_cbc_hmac_sha256              "aes-256-cbc-hmac-sha256"
 #define NID_aes_256_cbc_hmac_sha256             950
 
+#define SN_des_ede3_cbc_hmac_sha1               "DES-EDE3-CBC-HMAC-SHA1"
+#define LN_des_ede3_cbc_hmac_sha1               "des-ede3-cbc-hmac-sha1"
+#define NID_des_ede3_cbc_hmac_sha1              958
+
 #define SN_dhpublicnumber               "dhpublicnumber"
 #define LN_dhpublicnumber               "X9.42 DH"
 #define NID_dhpublicnumber              920

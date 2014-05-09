@@ -62,9 +62,9 @@
  * [including the GNU Public Licence.]
  */
 
-#define NUM_NID 958
-#define NUM_SN 951
-#define NUM_LN 951
+#define NUM_NID 959
+#define NUM_SN 952
+#define NUM_LN 952
 #define NUM_OBJ 890
 
 static const unsigned char lvalues[6255]={
@@ -2514,6 +2514,8 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 	NID_jurisdictionStateOrProvinceName,11,&(lvalues[6232]),0},
 {"jurisdictionC","jurisdictionCountryName",
 	NID_jurisdictionCountryName,11,&(lvalues[6243]),0},
+{"DES-EDE3-CBC-HMAC-SHA1","des-ede3-cbc-hmac-sha1",
+	NID_des_ede3_cbc_hmac_sha1,0,NULL,0},
 };
 
 static const unsigned int sn_objs[NUM_SN]={
@@ -2592,6 +2594,7 @@ static const unsigned int sn_objs[NUM_SN]={
 62,	/* "DES-EDE-OFB" */
 33,	/* "DES-EDE3" */
 44,	/* "DES-EDE3-CBC" */
+958,	/* "DES-EDE3-CBC-HMAC-SHA1" */
 61,	/* "DES-EDE3-CFB" */
 658,	/* "DES-EDE3-CFB1" */
 659,	/* "DES-EDE3-CFB8" */
@@ -3760,6 +3763,7 @@ static const unsigned int ln_objs[NUM_LN]={
 62,	/* "des-ede-ofb" */
 33,	/* "des-ede3" */
 44,	/* "des-ede3-cbc" */
+958,	/* "des-ede3-cbc-hmac-sha1" */
 61,	/* "des-ede3-cfb" */
 658,	/* "des-ede3-cfb1" */
 659,	/* "des-ede3-cfb8" */
