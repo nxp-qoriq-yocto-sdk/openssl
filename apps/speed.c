@@ -226,7 +226,11 @@
 # endif
 
 # undef BUFSIZE
-# define BUFSIZE ((long)1024*8+1)
+/* The buffer overhead allows GCM tag at the end of the encrypted data. This
+   avoids buffer overflows from cryptodev since Linux kernel GCM
+   implementation allways adds the tag - unlike e_aes.c:aes_gcm_cipher()
+   which doesn't */
+#define BUFSIZE	((long)1024*8 + EVP_GCM_TLS_TAG_LEN)
 static volatile int run = 0;
 
 static int mr = 0;
