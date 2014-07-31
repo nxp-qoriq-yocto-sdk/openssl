@@ -133,6 +133,8 @@ static int cryptodev_dh_compute_key(unsigned char *key,
 static int cryptodev_ctrl(ENGINE *e, int cmd, long i, void *p,
     void (*f)(void));
 void ENGINE_load_cryptodev(void);
+const EVP_CIPHER cryptodev_aes_128_cbc_hmac_sha1;
+const EVP_CIPHER cryptodev_aes_256_cbc_hmac_sha1;
 
 static const ENGINE_CMD_DEFN cryptodev_defns[] = {
 	{ 0, NULL, NULL, 0 }
@@ -342,7 +344,21 @@ get_cryptodev_digests(const int **cnids)
 static int
 cryptodev_usable_ciphers(const int **nids)
 {
-	return (get_cryptodev_ciphers(nids));
+	int i, count;
+
+	count = get_cryptodev_ciphers(nids);
+	/* add ciphers specific to cryptodev if found in kernel */
+	for(i = 0; i < count; i++) {
+		switch (*(*nids + i)) {
+		case NID_aes_128_cbc_hmac_sha1:
+			EVP_add_cipher(&cryptodev_aes_128_cbc_hmac_sha1);
+			break;
+		case NID_aes_256_cbc_hmac_sha1:
+			EVP_add_cipher(&cryptodev_aes_256_cbc_hmac_sha1);
+			break;
+		}
+	}
+	return count;
 }
 
 static int
@@ -1582,8 +1598,6 @@ ENGINE_load_cryptodev(void)
 	}
 	put_dev_crypto(fd);
 
-	EVP_add_cipher(&cryptodev_aes_128_cbc_hmac_sha1);
-	EVP_add_cipher(&cryptodev_aes_256_cbc_hmac_sha1);
 	if (!ENGINE_set_id(engine, "cryptodev") ||
 	    !ENGINE_set_name(engine, "BSD cryptodev engine") ||
 	    !ENGINE_set_ciphers(engine, cryptodev_engine_ciphers) ||
