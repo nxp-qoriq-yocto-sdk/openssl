@@ -1801,21 +1801,15 @@ cryptodev_engine_digests(ENGINE *e, const EVP_MD **digest,
 static int bn2crparam(const BIGNUM *a, struct crparam *crp)
 {
     ssize_t bytes, bits;
-    u_char *b;
-
-    crp->crp_p = NULL;
-    crp->crp_nbits = 0;
 
     bits = BN_num_bits(a);
     bytes = (bits + 7) / 8;
 
-    b = malloc(bytes);
-    if (b == NULL)
-        return (1);
-    memset(b, 0, bytes);
-
-    crp->crp_p = (caddr_t) b;
     crp->crp_nbits = bits;
+    crp->crp_p = malloc(bytes);
+
+    if (crp->crp_p == NULL)
+        return (1);
 
     BN_bn2bin(a, crp->crp_p);
     return (0);
