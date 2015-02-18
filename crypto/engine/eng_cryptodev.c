@@ -1865,32 +1865,29 @@ cryptodev_asym_async(struct crypt_kop *kop, int rlen, BIGNUM *r, int slen,
     fd = *(int *)cookie->eng_handle;
 
     eng_cookie = malloc(sizeof(struct cryptodev_cookie_s));
-
-    if (eng_cookie) {
-        memset(eng_cookie, 0, sizeof(struct cryptodev_cookie_s));
-        if (r) {
-            kop->crk_param[kop->crk_iparams].crp_p =
-                calloc(rlen, sizeof(char));
-            if (!kop->crk_param[kop->crk_iparams].crp_p)
-                return -ENOMEM;
-            kop->crk_param[kop->crk_iparams].crp_nbits = rlen * 8;
-            kop->crk_oparams++;
-            eng_cookie->r = r;
-            eng_cookie->r_param = kop->crk_param[kop->crk_iparams];
-        }
-        if (s) {
-            kop->crk_param[kop->crk_iparams + 1].crp_p =
-                calloc(slen, sizeof(char));
-            if (!kop->crk_param[kop->crk_iparams + 1].crp_p)
-                return -ENOMEM;
-            kop->crk_param[kop->crk_iparams + 1].crp_nbits = slen * 8;
-            kop->crk_oparams++;
-            eng_cookie->s = s;
-            eng_cookie->s_param = kop->crk_param[kop->crk_iparams + 1];
-        }
-    } else
+    if (!eng_cookie)
         return -ENOMEM;
 
+    memset(eng_cookie, 0, sizeof(struct cryptodev_cookie_s));
+    if (r) {
+        kop->crk_param[kop->crk_iparams].crp_p = calloc(rlen, sizeof(char));
+        if (!kop->crk_param[kop->crk_iparams].crp_p)
+            return -ENOMEM;
+        kop->crk_param[kop->crk_iparams].crp_nbits = rlen * 8;
+        kop->crk_oparams++;
+        eng_cookie->r = r;
+        eng_cookie->r_param = kop->crk_param[kop->crk_iparams];
+    }
+    if (s) {
+        kop->crk_param[kop->crk_iparams + 1].crp_p =
+            calloc(slen, sizeof(char));
+        if (!kop->crk_param[kop->crk_iparams + 1].crp_p)
+            return -ENOMEM;
+        kop->crk_param[kop->crk_iparams + 1].crp_nbits = slen * 8;
+        kop->crk_oparams++;
+        eng_cookie->s = s;
+        eng_cookie->s_param = kop->crk_param[kop->crk_iparams + 1];
+    }
     eng_cookie->kop = kop;
     cookie->eng_cookie = eng_cookie;
     return ioctl(fd, CIOCASYMASYNCRYPT, kop);
