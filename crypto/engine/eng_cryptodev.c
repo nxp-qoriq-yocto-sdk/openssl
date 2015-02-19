@@ -433,10 +433,10 @@ static int get_dev_crypto(void)
 
 static int put_dev_crypto(int fd)
 {
-#ifdef CRIOGET_NOT_NEEDED
-	return 0;
-#else
-	return close(fd);
+# ifdef CRIOGET_NOT_NEEDED
+    return 0;
+# else
+    return close(fd);
 # endif
 }
 
@@ -1863,7 +1863,7 @@ cryptodev_asym_async(struct crypt_kop *kop, int rlen, BIGNUM *r, int slen,
     struct pkc_cookie_s *cookie = kop->cookie;
     struct cryptodev_cookie_s *eng_cookie;
 
-    fd = *(int *)cookie->eng_handle;
+    fd = cookie->eng_handle;
 
     eng_cookie = malloc(sizeof(struct cryptodev_cookie_s));
     if (!eng_cookie)
@@ -1926,38 +1926,11 @@ cryptodev_asym(struct crypt_kop *kop, int rlen, BIGNUM *r, int slen,
     return (ret);
 }
 
-/* Close an opened instance of cryptodev engine */
-void cryptodev_close_instance(void *handle)
-{
-    int fd;
-
-    if (handle) {
-        fd = *(int *)handle;
-        close(fd);
-        free(handle);
-    }
-}
-
-/* Create an instance of cryptodev for asynchronous interface */
-void *cryptodev_init_instance(void)
-{
-    int *fd = malloc(sizeof(int));
-
-    if (fd) {
-        if ((*fd = open("/dev/crypto", O_RDWR, 0)) == -1) {
-            free(fd);
-            return NULL;
-        }
-    }
-    return fd;
-}
-
 # include <poll.h>
 
 /* Return 0 on success and 1 on failure */
-int cryptodev_check_availability(void *eng_handle)
+int cryptodev_check_availability(int fd)
 {
-    int fd = *(int *)eng_handle;
     struct pkc_cookie_list_s cookie_list;
     struct pkc_cookie_s *cookie;
     int i;
@@ -4706,8 +4679,8 @@ void ENGINE_load_cryptodev(void)
     }
 
     ENGINE_set_check_pkc_availability(engine, cryptodev_check_availability);
-    ENGINE_set_close_instance(engine, cryptodev_close_instance);
-    ENGINE_set_init_instance(engine, cryptodev_init_instance);
+    ENGINE_set_close_instance(engine, put_dev_crypto);
+    ENGINE_set_open_instance(engine, open_dev_crypto);
     ENGINE_set_async_map(engine, ENGINE_ALLPKC_ASYNC);
 
     ENGINE_add(engine);

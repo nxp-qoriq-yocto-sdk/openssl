@@ -668,7 +668,7 @@ struct pkc_cookie_s {
 	   *		-EINVAL: Parameters Invalid
 	   */
 	void (*pkc_callback)(struct pkc_cookie_s *cookie, int status);
-	void *eng_handle;
+	int eng_handle;
 };
 
 #ifdef  __cplusplus

@@ -101,7 +101,7 @@ void engine_set_all_null(ENGINE *e)
     e->load_privkey = NULL;
     e->load_pubkey = NULL;
 	e->check_pkc_availability = NULL;
-	e->engine_init_instance = NULL;
+	e->engine_open_instance = NULL;
 	e->engine_close_instance = NULL;
     e->cmd_defns = NULL;
 	e->async_map = 0;
@@ -252,30 +252,19 @@ int ENGINE_set_id(ENGINE *e, const char *id)
     return 1;
 	}
 
-void ENGINE_set_init_instance(ENGINE *e, void *(*engine_init_instance)(void))
-	{
-		e->engine_init_instance = engine_init_instance;
-	}
+void ENGINE_set_open_instance(ENGINE *e, int (*engine_open_instance)(void))
+{
+	e->engine_open_instance = engine_open_instance;
+}
 
-void ENGINE_set_close_instance(ENGINE *e,
-	void (*engine_close_instance)(void *))
-	{
-		e->engine_close_instance = engine_close_instance;
-	}
+void ENGINE_set_close_instance(ENGINE *e, int (*engine_close_instance)(int))
+{
+	e->engine_close_instance = engine_close_instance;
+}
 
 void ENGINE_set_async_map(ENGINE *e, int async_map)
 	{
 		e->async_map = async_map;
-	}
-
-void *ENGINE_init_instance(ENGINE *e)
-	{
-		return e->engine_init_instance();
-	}
-
-void ENGINE_close_instance(ENGINE *e, void *eng_handle)
-	{
-		e->engine_close_instance(eng_handle);
 	}
 
 int ENGINE_get_async_map(ENGINE *e)
@@ -283,15 +272,25 @@ int ENGINE_get_async_map(ENGINE *e)
 		return e->async_map;
 	}
 
-void ENGINE_set_check_pkc_availability(ENGINE *e,
-	int (*check_pkc_availability)(void *eng_handle))
-	{
-		e->check_pkc_availability = check_pkc_availability;
-	}
+int ENGINE_open_instance(ENGINE *e)
+{
+	return e->engine_open_instance();
+}
 
-int ENGINE_check_pkc_availability(ENGINE *e, void *eng_handle)
-	{
-		return e->check_pkc_availability(eng_handle);
+int ENGINE_close_instance(ENGINE *e, int fd)
+{
+	return e->engine_close_instance(fd);
+}
+
+void ENGINE_set_check_pkc_availability(ENGINE *e,
+	int (*check_pkc_availability)(int fd))
+{
+	e->check_pkc_availability = check_pkc_availability;
+}
+
+int ENGINE_check_pkc_availability(ENGINE *e, int fd)
+{
+	return e->check_pkc_availability(fd);
 }
 
 int ENGINE_set_name(ENGINE *e, const char *name)
