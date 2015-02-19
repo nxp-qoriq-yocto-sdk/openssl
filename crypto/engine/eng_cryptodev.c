@@ -93,7 +93,6 @@ struct dev_crypto_state {
 
 static u_int32_t cryptodev_asymfeat = 0;
 
-static int get_asym_dev_crypto(void);
 static int open_dev_crypto(void);
 static int get_dev_crypto(void);
 static int get_cryptodev_ciphers(const int **cnids);
@@ -438,16 +437,6 @@ static void put_dev_crypto(int fd)
 # ifndef CRIOGET_NOT_NEEDED
     close(fd);
 # endif
-}
-
-/* Caching version for asym operations */
-static int get_asym_dev_crypto(void)
-{
-    static int fd = -1;
-
-    if (fd == -1)
-        fd = get_dev_crypto();
-    return fd;
 }
 
 /*
@@ -1919,7 +1908,7 @@ cryptodev_asym(struct crypt_kop *kop, int rlen, BIGNUM *r, int slen,
 {
     int fd, ret = -1;
 
-    if ((fd = get_asym_dev_crypto()) < 0)
+    if ((fd = get_dev_crypto()) < 0)
         return (ret);
 
     if (r) {
@@ -2509,7 +2498,7 @@ static int cryptodev_rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb)
     int p_len, q_len;
     int i;
 
-    if ((fd = get_asym_dev_crypto()) < 0)
+    if ((fd = get_dev_crypto()) < 0)
         goto sw_try;
 
     if (!rsa->n && ((rsa->n = BN_new()) == NULL))
@@ -4098,7 +4087,7 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
     BIGNUM *temp = NULL;
     unsigned char *padded_pub_key = NULL, *p = NULL;
 
-    if ((fd = get_asym_dev_crypto()) < 0)
+    if ((fd = get_dev_crypto()) < 0)
         goto sw_try;
 
     memset(&kop, 0, sizeof kop);
