@@ -431,10 +431,12 @@ static int get_dev_crypto(void)
 # endif
 }
 
-static void put_dev_crypto(int fd)
+static int put_dev_crypto(int fd)
 {
-# ifndef CRIOGET_NOT_NEEDED
-    close(fd);
+#ifdef CRIOGET_NOT_NEEDED
+	return 0;
+#else
+	return close(fd);
 # endif
 }
 
