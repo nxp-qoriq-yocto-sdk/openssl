@@ -391,45 +391,44 @@ static void ctr64_inc(unsigned char *counter)
     } while (n);
 }
 
-/*
- * Return a fd if /dev/crypto seems usable, 0 otherwise.
- */
 static int open_dev_crypto(void)
 {
-    static int fd = -1;
+    int fd;
 
-    if (fd == -1) {
-        if ((fd = open("/dev/crypto", O_RDWR, 0)) == -1)
-            return (-1);
-        /* close on exec */
-        if (fcntl(fd, F_SETFD, 1) == -1) {
-            close(fd);
-            fd = -1;
-            return (-1);
-        }
+    fd = open("/dev/crypto", O_RDWR, 0);
+    if (fd < 0)
+        return -1;
+
+    /* close on exec */
+    if (fcntl(fd, F_SETFD, 1) == -1) {
+        close(fd);
+        return -1;
     }
-    return (fd);
+
+    return fd;
 }
 
 static int get_dev_crypto(void)
 {
-    int fd, retfd;
+    static int fd = -1;
+    int retfd;
 
-    if ((fd = open_dev_crypto()) == -1)
-        return (-1);
-# ifndef CRIOGET_NOT_NEEDED
+    if (fd == -1)
+        fd = open_dev_crypto();
+# ifdef CRIOGET_NOT_NEEDED
+    return fd;
+# else
+    if (fd == -1)
+        return -1;
     if (ioctl(fd, CRIOGET, &retfd) == -1)
         return (-1);
-
     /* close on exec */
     if (fcntl(retfd, F_SETFD, 1) == -1) {
         close(retfd);
         return (-1);
     }
-# else
-    retfd = fd;
+    return retfd;
 # endif
-    return (retfd);
 }
 
 static void put_dev_crypto(int fd)
