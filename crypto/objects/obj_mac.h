@@ -4046,3 +4046,23 @@
 #define LN_tls11_aes_256_cbc_hmac_sha1		"tls11-aes-256-cbc-hmac-sha1"
 #define NID_tls11_aes_256_cbc_hmac_sha1		923
 
+#define SN_tls12_des_ede3_cbc_hmac_sha1		"TLS12-DES-EDE3-CBC-HMAC-SHA1"
+#define LN_tls12_des_ede3_cbc_hmac_sha1		"tls12-des-ede3-cbc-hmac-sha1"
+#define NID_tls12_des_ede3_cbc_hmac_sha1		924
+
+#define SN_tls12_aes_128_cbc_hmac_sha1		"TLS12-AES-128-CBC-HMAC-SHA1"
+#define LN_tls12_aes_128_cbc_hmac_sha1		"tls12-aes-128-cbc-hmac-sha1"
+#define NID_tls12_aes_128_cbc_hmac_sha1		925
+
+#define SN_tls12_aes_256_cbc_hmac_sha1		"TLS12-AES-256-CBC-HMAC-SHA1"
+#define LN_tls12_aes_256_cbc_hmac_sha1		"tls12-aes-256-cbc-hmac-sha1"
+#define NID_tls12_aes_256_cbc_hmac_sha1		926
+
+#define SN_tls12_aes_128_cbc_hmac_sha256		"TLS12-AES-128-CBC-HMAC-SHA256"
+#define LN_tls12_aes_128_cbc_hmac_sha256		"tls12-aes-128-cbc-hmac-sha256"
+#define NID_tls12_aes_128_cbc_hmac_sha256		927
+
+#define SN_tls12_aes_256_cbc_hmac_sha256		"TLS12-AES-256-CBC-HMAC-SHA256"
+#define LN_tls12_aes_256_cbc_hmac_sha256		"tls12-aes-256-cbc-hmac-sha256"
+#define NID_tls12_aes_256_cbc_hmac_sha256		928
+

@@ -140,6 +140,11 @@ const EVP_CIPHER cryptodev_aes_256_cbc_hmac_sha1;
 const EVP_CIPHER cryptodev_tls11_3des_cbc_hmac_sha1;
 const EVP_CIPHER cryptodev_tls11_aes_128_cbc_hmac_sha1;
 const EVP_CIPHER cryptodev_tls11_aes_256_cbc_hmac_sha1;
+const EVP_CIPHER cryptodev_tls12_3des_cbc_hmac_sha1;
+const EVP_CIPHER cryptodev_tls12_aes_128_cbc_hmac_sha1;
+const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha1;
+const EVP_CIPHER cryptodev_tls12_aes_128_cbc_hmac_sha256;
+const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha256;
 
 inline int spcf_bn2bin(BIGNUM *bn, unsigned char **bin,  int *bin_len)
 {
@@ -263,6 +268,11 @@ static struct {
 	{ CRYPTO_TLS11_3DES_CBC_HMAC_SHA1, NID_tls11_des_ede3_cbc_hmac_sha1, 8, 24, 20},
 	{ CRYPTO_TLS11_AES_CBC_HMAC_SHA1, NID_tls11_aes_128_cbc_hmac_sha1, 16, 16, 20},
 	{ CRYPTO_TLS11_AES_CBC_HMAC_SHA1, NID_tls11_aes_256_cbc_hmac_sha1, 16, 32, 20},
+	{ CRYPTO_TLS12_3DES_CBC_HMAC_SHA1, NID_tls12_des_ede3_cbc_hmac_sha1, 8, 24, 20},
+	{ CRYPTO_TLS12_AES_CBC_HMAC_SHA1, NID_tls12_aes_128_cbc_hmac_sha1, 16, 16, 20},
+	{ CRYPTO_TLS12_AES_CBC_HMAC_SHA1, NID_tls12_aes_256_cbc_hmac_sha1, 16, 32, 20},
+	{ CRYPTO_TLS12_AES_CBC_HMAC_SHA256, NID_tls12_aes_128_cbc_hmac_sha256, 16, 16, 32},
+	{ CRYPTO_TLS12_AES_CBC_HMAC_SHA256, NID_tls12_aes_256_cbc_hmac_sha256, 16, 32, 32},
 	{ CRYPTO_AES_GCM,       NID_aes_128_gcm,  16, 16, 0},
 	{ 0, NID_undef,	0, 0, 0},
 };
@@ -487,6 +497,21 @@ cryptodev_usable_ciphers(const int **nids)
 		case NID_tls11_aes_256_cbc_hmac_sha1:
 			EVP_add_cipher(&cryptodev_tls11_aes_256_cbc_hmac_sha1);
 			break;
+		case NID_tls12_des_ede3_cbc_hmac_sha1:
+			EVP_add_cipher(&cryptodev_tls12_3des_cbc_hmac_sha1);
+			break;
+		case NID_tls12_aes_128_cbc_hmac_sha1:
+			EVP_add_cipher(&cryptodev_tls12_aes_128_cbc_hmac_sha1);
+			break;
+		case NID_tls12_aes_256_cbc_hmac_sha1:
+			EVP_add_cipher(&cryptodev_tls12_aes_256_cbc_hmac_sha1);
+			break;
+		case NID_tls12_aes_128_cbc_hmac_sha256:
+			EVP_add_cipher(&cryptodev_tls12_aes_128_cbc_hmac_sha256);
+			break;
+		case NID_tls12_aes_256_cbc_hmac_sha256:
+			EVP_add_cipher(&cryptodev_tls12_aes_256_cbc_hmac_sha256);
+			break;
 		}
 	}
 	return count;
@@ -596,6 +621,11 @@ static int cryptodev_aead_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 	case NID_tls11_des_ede3_cbc_hmac_sha1:
 	case NID_tls11_aes_128_cbc_hmac_sha1:
 	case NID_tls11_aes_256_cbc_hmac_sha1:
+	case NID_tls12_des_ede3_cbc_hmac_sha1:
+	case NID_tls12_aes_128_cbc_hmac_sha1:
+	case NID_tls12_aes_256_cbc_hmac_sha1:
+	case NID_tls12_aes_128_cbc_hmac_sha256:
+	case NID_tls12_aes_256_cbc_hmac_sha256:
 		cryp.flags = COP_FLAG_AEAD_TLS_TYPE;
 	}
 	cryp.ses = sess->ses;
@@ -795,7 +825,15 @@ static int cryptodev_cbc_hmac_sha1_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg,
 		case NID_tls11_des_ede3_cbc_hmac_sha1:
 		case NID_tls11_aes_128_cbc_hmac_sha1:
 		case NID_tls11_aes_256_cbc_hmac_sha1:
+		case NID_tls12_des_ede3_cbc_hmac_sha1:
+		case NID_tls12_aes_128_cbc_hmac_sha1:
+		case NID_tls12_aes_256_cbc_hmac_sha1:
 			maclen = SHA_DIGEST_LENGTH;
+			aad_needs_fix = true;
+			break;
+		case NID_tls12_aes_128_cbc_hmac_sha256:
+		case NID_tls12_aes_256_cbc_hmac_sha256:
+			maclen = SHA256_DIGEST_LENGTH;
 			aad_needs_fix = true;
 			break;
 		}
@@ -1207,6 +1245,76 @@ const EVP_CIPHER cryptodev_tls11_aes_256_cbc_hmac_sha1 = {
 	NULL
 };
 
+const EVP_CIPHER cryptodev_tls12_3des_cbc_hmac_sha1 = {
+	NID_tls12_des_ede3_cbc_hmac_sha1,
+	8, 24, 8,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
+const EVP_CIPHER cryptodev_tls12_aes_128_cbc_hmac_sha1 = {
+	NID_tls12_aes_128_cbc_hmac_sha1,
+	16, 16, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
+const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha1 = {
+	NID_tls12_aes_256_cbc_hmac_sha1,
+	16, 32, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
+const EVP_CIPHER cryptodev_tls12_aes_128_cbc_hmac_sha256 = {
+	NID_tls12_aes_128_cbc_hmac_sha256,
+	16, 16, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
+const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha256 = {
+	NID_tls12_aes_256_cbc_hmac_sha256,
+	16, 32, 16,
+	EVP_CIPH_CBC_MODE | EVP_CIPH_FLAG_AEAD_CIPHER,
+	cryptodev_init_aead_key,
+	cryptodev_aead_cipher,
+	cryptodev_cleanup,
+	sizeof(struct dev_crypto_state),
+	EVP_CIPHER_set_asn1_iv,
+	EVP_CIPHER_get_asn1_iv,
+	cryptodev_cbc_hmac_sha1_ctrl,
+	NULL
+};
+
 const EVP_CIPHER cryptodev_aes_128_gcm = {
 	NID_aes_128_gcm,
 	1, 16, 12,
@@ -1280,6 +1388,21 @@ cryptodev_engine_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 		break;
 	case NID_tls11_aes_256_cbc_hmac_sha1:
 		*cipher = &cryptodev_tls11_aes_256_cbc_hmac_sha1;
+		break;
+	case NID_tls12_des_ede3_cbc_hmac_sha1:
+		*cipher = &cryptodev_tls12_3des_cbc_hmac_sha1;
+		break;
+	case NID_tls12_aes_128_cbc_hmac_sha1:
+		*cipher = &cryptodev_tls12_aes_128_cbc_hmac_sha1;
+		break;
+	case NID_tls12_aes_256_cbc_hmac_sha1:
+		*cipher = &cryptodev_tls12_aes_256_cbc_hmac_sha1;
+		break;
+	case NID_tls12_aes_128_cbc_hmac_sha256:
+		*cipher = &cryptodev_tls12_aes_128_cbc_hmac_sha256;
+		break;
+	case NID_tls12_aes_256_cbc_hmac_sha256:
+		*cipher = &cryptodev_tls12_aes_256_cbc_hmac_sha256;
 		break;
 	default:
 		*cipher = NULL;
