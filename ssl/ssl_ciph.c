@@ -691,6 +691,31 @@ int ssl_cipher_get_evp(const SSL_SESSION *s, const EVP_CIPHER **enc,
                  c->algorithm_mac == SSL_SHA1 &&
                  (evp = EVP_get_cipherbyname("TLS11-AES-256-CBC-HMAC-SHA1")))
             *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_2_VERSION &&
+                 c->algorithm_enc == SSL_3DES &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp=EVP_get_cipherbyname("TLS12-DES-EDE3-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_2_VERSION &&
+                 c->algorithm_enc == SSL_AES128 &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp=EVP_get_cipherbyname("TLS12-AES-128-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_2_VERSION &&
+                 c->algorithm_enc == SSL_AES256 &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp=EVP_get_cipherbyname("TLS12-AES-256-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_2_VERSION &&
+                 c->algorithm_enc == SSL_AES128 &&
+                 c->algorithm_mac == SSL_SHA256 &&
+                 (evp=EVP_get_cipherbyname("TLS12-AES-128-CBC-HMAC-SHA256")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_2_VERSION &&
+                 c->algorithm_enc == SSL_AES256 &&
+                 c->algorithm_mac == SSL_SHA256 &&
+                 (evp=EVP_get_cipherbyname("TLS12-AES-256-CBC-HMAC-SHA256")))
+            *enc = evp, *md = NULL;
         return (1);
     } else
         return (0);

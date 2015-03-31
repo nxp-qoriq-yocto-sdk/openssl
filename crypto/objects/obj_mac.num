@@ -959,3 +959,8 @@ des_ede3_cbc_hmac_sha1		958
 tls11_des_ede3_cbc_hmac_sha1		959
 tls11_aes_128_cbc_hmac_sha1		960
 tls11_aes_256_cbc_hmac_sha1		961
+tls12_des_ede3_cbc_hmac_sha1		962
+tls12_aes_128_cbc_hmac_sha1		963
+tls12_aes_256_cbc_hmac_sha1		964
+tls12_aes_128_cbc_hmac_sha256		965
+tls12_aes_256_cbc_hmac_sha256		966
