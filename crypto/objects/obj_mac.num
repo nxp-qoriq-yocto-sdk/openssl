@@ -918,3 +918,6 @@ aes_192_cbc_hmac_sha1		917
 aes_256_cbc_hmac_sha1		918
 rsaesOaep		919
 des_ede3_cbc_hmac_sha1		920
+tls11_des_ede3_cbc_hmac_sha1		921
+tls11_aes_128_cbc_hmac_sha1		922
+tls11_aes_256_cbc_hmac_sha1		923
