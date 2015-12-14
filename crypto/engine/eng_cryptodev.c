@@ -1590,24 +1590,25 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
 static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
                                    size_t count)
 {
-    struct crypt_op cryp;
     struct dev_crypto_state *state = ctx->md_data;
-    struct session_op *sess = &state->d_sess;
 
-    if (!data || state->d_fd < 0) {
+    if (!data || !count) {
         printf("cryptodev_digest_update: illegal inputs \n");
-        return (0);
+        return 0;
     }
 
-    if (!count) {
-        return (0);
-    }
-
-    if (!(ctx->flags & EVP_MD_CTX_FLAG_ONESHOT)) {
-        /* if application doesn't support one buffer */
+    /*
+     * Accumulate input data if it is scattered in several buffers. TODO:
+     * Depending on number of calls and data size, this code can be optimized
+     * to take advantage of Linux kernel crypto API, balancing between
+     * cryptodev calls and accumulating small amounts of data
+     */
+    if (ctx->flags & EVP_MD_CTX_FLAG_ONESHOT) {
+        state->mac_data = data;
+        state->mac_len = count;
+    } else {
         state->mac_data =
             OPENSSL_realloc(state->mac_data, state->mac_len + count);
-
         if (!state->mac_data) {
             printf("cryptodev_digest_update: realloc failed\n");
             return (0);
@@ -1615,23 +1616,9 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
 
         memcpy(state->mac_data + state->mac_len, data, count);
         state->mac_len += count;
-
-        return (1);
     }
 
-    memset(&cryp, 0, sizeof(cryp));
-
-    cryp.ses = sess->ses;
-    cryp.flags = 0;
-    cryp.len = count;
-    cryp.src = (caddr_t) data;
-    cryp.dst = NULL;
-    cryp.mac = (caddr_t) state->digest_res;
-    if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
-        printf("cryptodev_digest_update: digest failed\n");
-        return (0);
-    }
-    return (1);
+    return 1;
 }
 
 static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
@@ -1640,33 +1627,25 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
     struct dev_crypto_state *state = ctx->md_data;
     struct session_op *sess = &state->d_sess;
 
-    int ret = 1;
-
     if (!md || state->d_fd < 0) {
         printf("cryptodev_digest_final: illegal input\n");
         return (0);
     }
 
-    if (!(ctx->flags & EVP_MD_CTX_FLAG_ONESHOT)) {
-        /* if application doesn't support one buffer */
-        memset(&cryp, 0, sizeof(cryp));
-        cryp.ses = sess->ses;
-        cryp.flags = 0;
-        cryp.len = state->mac_len;
-        cryp.src = state->mac_data;
-        cryp.dst = NULL;
-        cryp.mac = (caddr_t) md;
-        if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
-            printf("cryptodev_digest_final: digest failed\n");
-            return (0);
-        }
+    memset(&cryp, 0, sizeof(cryp));
 
-        return 1;
+    cryp.ses = sess->ses;
+    cryp.flags = 0;
+    cryp.len = state->mac_len;
+    cryp.src = state->mac_data;
+    cryp.mac = md;
+
+    if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
+        printf("cryptodev_digest_final: digest failed\n");
+        return (0);
     }
 
-    memcpy(md, state->digest_res, ctx->digest->md_size);
-
-    return (ret);
+    return (1);
 }
 
 static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
@@ -1683,11 +1662,11 @@ static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
         return (0);
     }
 
-    if (state->mac_data) {
+    if (!(ctx->flags & EVP_MD_CTX_FLAG_ONESHOT)) {
         OPENSSL_free(state->mac_data);
-        state->mac_data = NULL;
-        state->mac_len = 0;
     }
+    state->mac_data = NULL;
+    state->mac_len = 0;
 
     if (ioctl(state->d_fd, CIOCFSESSION, &sess->ses) < 0) {
         printf("cryptodev_digest_cleanup: failed to close session\n");
@@ -1695,6 +1674,7 @@ static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
     } else {
         ret = 1;
     }
+
     put_dev_crypto(state->d_fd);
     state->d_fd = -1;
 
