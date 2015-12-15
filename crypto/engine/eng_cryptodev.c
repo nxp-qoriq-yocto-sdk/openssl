@@ -1577,13 +1577,6 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
     sess->mackeylen = digest_key_length(ctx->digest->type);
     sess->mac = digest;
 
-    if (ioctl(state->d_fd, CIOCGSESSION, sess) < 0) {
-        put_dev_crypto(state->d_fd);
-        state->d_fd = -1;
-        printf("cryptodev_digest_init: Open session failed\n");
-        return (0);
-    }
-
     return (1);
 }
 
@@ -1623,12 +1616,18 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
 
 static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
+    int ret = 1;
     struct crypt_op cryp;
     struct dev_crypto_state *state = ctx->md_data;
     struct session_op *sess = &state->d_sess;
 
     if (!md || state->d_fd < 0) {
         printf("cryptodev_digest_final: illegal input\n");
+        return (0);
+    }
+
+    if (ioctl(state->d_fd, CIOCGSESSION, sess) < 0) {
+        printf("cryptodev_digest_init: Open session failed\n");
         return (0);
     }
 
@@ -1642,43 +1641,38 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 
     if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
         printf("cryptodev_digest_final: digest failed\n");
-        return (0);
+        ret = 0;
     }
 
-    return (1);
+    if (ioctl(state->d_fd, CIOCFSESSION, &sess->ses) < 0) {
+        printf("cryptodev_digest_cleanup: failed to close session\n");
+    }
+
+    return ret;
 }
 
 static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
 {
-    int ret = 1;
     struct dev_crypto_state *state = ctx->md_data;
     struct session_op *sess = &state->d_sess;
 
-    if (state == NULL)
+    if (state == NULL) {
         return 0;
-
-    if (state->d_fd < 0) {
-        printf("cryptodev_digest_cleanup: illegal input\n");
-        return (0);
     }
 
     if (!(ctx->flags & EVP_MD_CTX_FLAG_ONESHOT)) {
         OPENSSL_free(state->mac_data);
     }
+
+    if (state->d_fd >= 0) {
+        put_dev_crypto(state->d_fd);
+        state->d_fd = -1;
+    }
+
     state->mac_data = NULL;
     state->mac_len = 0;
 
-    if (ioctl(state->d_fd, CIOCFSESSION, &sess->ses) < 0) {
-        printf("cryptodev_digest_cleanup: failed to close session\n");
-        ret = 0;
-    } else {
-        ret = 1;
-    }
-
-    put_dev_crypto(state->d_fd);
-    state->d_fd = -1;
-
-    return (ret);
+    return 1;
 }
 
 static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
