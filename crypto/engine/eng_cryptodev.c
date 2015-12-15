@@ -84,6 +84,7 @@ struct dev_crypto_state {
     unsigned char *iv;
     int ivlen;
 # ifdef USE_CRYPTODEV_DIGESTS
+    struct hash_op_data hash_op;
     char dummy_mac_key[HASH_MAX_LEN];
     unsigned char digest_res[HASH_MAX_LEN];
     char *mac_data;
@@ -1556,7 +1557,7 @@ static int digest_key_length(int nid)
 static int cryptodev_digest_init(EVP_MD_CTX *ctx)
 {
     struct dev_crypto_state *state = ctx->md_data;
-    struct session_op *sess = &state->d_sess;
+    struct hash_op_data *hash_op = &state->hash_op;
     int digest;
 
     memset(state, 0, sizeof(struct dev_crypto_state));
@@ -1573,9 +1574,9 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
         return (0);
     }
 
-    sess->mackey = state->dummy_mac_key;
-    sess->mackeylen = digest_key_length(ctx->digest->type);
-    sess->mac = digest;
+    hash_op->mac_op = digest;
+    hash_op->mackey = state->dummy_mac_key;
+    hash_op->mackeylen = digest_key_length(ctx->digest->type);
 
     return (1);
 }
@@ -1617,35 +1618,22 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
 static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
     int ret = 1;
-    struct crypt_op cryp;
     struct dev_crypto_state *state = ctx->md_data;
-    struct session_op *sess = &state->d_sess;
+    struct hash_op_data *hash_op = &state->hash_op;
 
     if (!md || state->d_fd < 0) {
         printf("%s: illegal input\n", __func__);
         return (0);
     }
 
-    if (ioctl(state->d_fd, CIOCGSESSION, sess) < 0) {
-        printf("%s: Open session failed\n", __func__);
-        return (0);
-    }
+    hash_op->flags = 0;
+    hash_op->len = state->mac_len;
+    hash_op->src = state->mac_data;
+    hash_op->mac_result = md;
 
-    memset(&cryp, 0, sizeof(cryp));
-
-    cryp.ses = sess->ses;
-    cryp.flags = 0;
-    cryp.len = state->mac_len;
-    cryp.src = state->mac_data;
-    cryp.mac = md;
-
-    if (ioctl(state->d_fd, CIOCCRYPT, &cryp) < 0) {
+    if (ioctl(state->d_fd, CIOCHASH, hash_op) < 0) {
         printf("%s: digest failed\n", __func__);
         ret = 0;
-    }
-
-    if (ioctl(state->d_fd, CIOCFSESSION, &sess->ses) < 0) {
-        printf("%s: failed to close session\n", __func__);
     }
 
     return ret;
