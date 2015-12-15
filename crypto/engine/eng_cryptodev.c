@@ -1559,13 +1559,13 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
     struct session_op *sess = &state->d_sess;
     int digest;
 
+    memset(state, 0, sizeof(struct dev_crypto_state));
+
     digest = digest_nid_to_cryptodev(ctx->digest->type);
     if (digest == NID_undef) {
         printf("cryptodev_digest_init: Can't get digest \n");
         return (0);
     }
-
-    memset(state, 0, sizeof(struct dev_crypto_state));
 
     state->d_fd = get_dev_crypto();
     if (state->d_fd < 0) {
