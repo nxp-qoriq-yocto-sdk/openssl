@@ -1533,37 +1533,31 @@ cryptodev_engine_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 
 # ifdef USE_CRYPTODEV_DIGESTS
 
-/* convert digest type to cryptodev */
-static int digest_nid_to_cryptodev(int nid)
+static int digest_nid_to_id(int nid)
 {
     int i;
 
-    for (i = 0; digests[i].id; i++)
-        if (digests[i].nid == nid)
-            return (digests[i].id);
-    return (0);
-}
-
-static int digest_key_length(int nid)
-{
-    int i;
-
-    for (i = 0; digests[i].id; i++)
-        if (digests[i].nid == nid)
-            return digests[i].keylen;
-    return (0);
+    for (i = 0;; i++) {
+        if ((digests[i].nid == nid) || (digests[i].id == 0)) {
+            break;
+        }
+    }
+    return i;
 }
 
 static int cryptodev_digest_init(EVP_MD_CTX *ctx)
 {
     struct dev_crypto_state *state = ctx->md_data;
     struct hash_op_data *hash_op = &state->hash_op;
-    int digest;
+    int id;
 
     memset(state, 0, sizeof(struct dev_crypto_state));
 
-    digest = digest_nid_to_cryptodev(ctx->digest->type);
-    if (digest == NID_undef) {
+    id = digest_nid_to_id(ctx->digest->type);
+
+    hash_op->mac_op = digests[id].id;
+    hash_op->mackeylen = digests[id].keylen;
+    if (hash_op->mac_op == 0) {
         printf("%s: Can't get digest\n", __func__);
         return (0);
     }
@@ -1574,11 +1568,9 @@ static int cryptodev_digest_init(EVP_MD_CTX *ctx)
         return (0);
     }
 
-    hash_op->mac_op = digest;
     hash_op->mackey = state->dummy_mac_key;
-    hash_op->mackeylen = digest_key_length(ctx->digest->type);
 
-    return (1);
+    return 1;
 }
 
 static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
@@ -1668,7 +1660,7 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
     struct dev_crypto_state *fstate = from->md_data;
     struct dev_crypto_state *dstate = to->md_data;
     struct session_op *sess;
-    int digest;
+    int id;
 
     if (dstate == NULL || fstate == NULL)
         return 1;
@@ -1677,11 +1669,11 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to, const EVP_MD_CTX *from)
 
     sess = &dstate->d_sess;
 
-    digest = digest_nid_to_cryptodev(to->digest->type);
+    id = digest_nid_to_id(to->digest->type);
 
     sess->mackey = dstate->dummy_mac_key;
-    sess->mackeylen = digest_key_length(to->digest->type);
-    sess->mac = digest;
+    sess->mackeylen = digests[id].keylen;
+    sess->mac = digests[id].id;
 
     dstate->d_fd = get_dev_crypto();
 
