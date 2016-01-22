@@ -62,9 +62,9 @@
  * [including the GNU Public Licence.]
  */
 
-#define NUM_NID 959
-#define NUM_SN 952
-#define NUM_LN 952
+#define NUM_NID 962
+#define NUM_SN 955
+#define NUM_LN 955
 #define NUM_OBJ 890
 
 static const unsigned char lvalues[6255]={
@@ -2516,6 +2516,12 @@ static const ASN1_OBJECT nid_objs[NUM_NID]={
 	NID_jurisdictionCountryName,11,&(lvalues[6243]),0},
 {"DES-EDE3-CBC-HMAC-SHA1","des-ede3-cbc-hmac-sha1",
 	NID_des_ede3_cbc_hmac_sha1,0,NULL,0},
+{"TLS11-DES-EDE3-CBC-HMAC-SHA1","tls11-des-ede3-cbc-hmac-sha1",
+	NID_tls11_des_ede3_cbc_hmac_sha1,0,NULL,0},
+{"TLS11-AES-128-CBC-HMAC-SHA1","tls11-aes-128-cbc-hmac-sha1",
+	NID_tls11_aes_128_cbc_hmac_sha1,0,NULL,0},
+{"TLS11-AES-256-CBC-HMAC-SHA1","tls11-aes-256-cbc-hmac-sha1",
+	NID_tls11_aes_256_cbc_hmac_sha1,0,NULL,0},
 };
 
 static const unsigned int sn_objs[NUM_SN]={
@@ -2705,6 +2711,9 @@ static const unsigned int sn_objs[NUM_SN]={
 100,	/* "SN" */
 16,	/* "ST" */
 143,	/* "SXNetID" */
+960,	/* "TLS11-AES-128-CBC-HMAC-SHA1" */
+961,	/* "TLS11-AES-256-CBC-HMAC-SHA1" */
+959,	/* "TLS11-DES-EDE3-CBC-HMAC-SHA1" */
 458,	/* "UID" */
  0,	/* "UNDEF" */
 11,	/* "X500" */
@@ -4396,6 +4405,9 @@ static const unsigned int ln_objs[NUM_LN]={
 459,	/* "textEncodedORAddress" */
 293,	/* "textNotice" */
 106,	/* "title" */
+960,	/* "tls11-aes-128-cbc-hmac-sha1" */
+961,	/* "tls11-aes-256-cbc-hmac-sha1" */
+959,	/* "tls11-des-ede3-cbc-hmac-sha1" */
 682,	/* "tpBasis" */
 436,	/* "ucl" */
  0,	/* "undefined" */

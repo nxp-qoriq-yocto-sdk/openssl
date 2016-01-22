@@ -653,11 +653,13 @@ int ssl_cipher_get_evp(const SSL_SESSION *s, const EVP_CIPHER **enc,
             c->algorithm_mac == SSL_MD5 &&
             (evp = EVP_get_cipherbyname("RC4-HMAC-MD5")))
             *enc = evp, *md = NULL;
-        else if (c->algorithm_enc == SSL_AES128 &&
+        else if (s->ssl_version == TLS1_VERSION &&
+                 c->algorithm_enc == SSL_AES128 &&
                  c->algorithm_mac == SSL_SHA1 &&
                  (evp = EVP_get_cipherbyname("AES-128-CBC-HMAC-SHA1")))
             *enc = evp, *md = NULL;
-        else if (c->algorithm_enc == SSL_AES256 &&
+        else if (s->ssl_version == TLS1_VERSION &&
+                 c->algorithm_enc == SSL_AES256 &&
                  c->algorithm_mac == SSL_SHA1 &&
                  (evp = EVP_get_cipherbyname("AES-256-CBC-HMAC-SHA1")))
             *enc = evp, *md = NULL;
@@ -669,9 +671,25 @@ int ssl_cipher_get_evp(const SSL_SESSION *s, const EVP_CIPHER **enc,
                  c->algorithm_mac == SSL_SHA256 &&
                  (evp = EVP_get_cipherbyname("AES-256-CBC-HMAC-SHA256")))
             *enc = evp, *md = NULL;
-        else if (c->algorithm_enc == SSL_3DES &&
-		 c->algorithm_mac == SSL_SHA1 &&
-		 (evp = EVP_get_cipherbyname("DES-EDE3-CBC-HMAC-SHA1")))
+        else if (s->ssl_version == TLS1_VERSION &&
+                 c->algorithm_enc == SSL_3DES &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp = EVP_get_cipherbyname("DES-EDE3-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_1_VERSION &&
+                 c->algorithm_enc == SSL_3DES &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp = EVP_get_cipherbyname("TLS11-DES-EDE3-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_1_VERSION &&
+                 c->algorithm_enc == SSL_AES128 &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp = EVP_get_cipherbyname("TLS11-AES-128-CBC-HMAC-SHA1")))
+            *enc = evp, *md = NULL;
+        else if (s->ssl_version == TLS1_1_VERSION &&
+                 c->algorithm_enc == SSL_AES256 &&
+                 c->algorithm_mac == SSL_SHA1 &&
+                 (evp = EVP_get_cipherbyname("TLS11-AES-256-CBC-HMAC-SHA1")))
             *enc = evp, *md = NULL;
         return (1);
     } else
