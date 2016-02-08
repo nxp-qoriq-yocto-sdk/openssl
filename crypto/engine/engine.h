@@ -569,7 +569,7 @@ void ENGINE_set_async_map(ENGINE *e, int async_map);
 int ENGINE_get_async_map(ENGINE *e);
 int ENGINE_open_instance(ENGINE *e);
 int ENGINE_close_instance(ENGINE *e, int fd);
-void ENGINE_set_init_instance(ENGINE *e, int(*engine_init_instance)(void));
+void ENGINE_set_open_instance(ENGINE *e, int(*engine_open_instance)(void));
 void ENGINE_set_close_instance(ENGINE *e, int(*engine_close_instance)(int));
 void ENGINE_set_check_pkc_availability(ENGINE *e,
 	int (*check_pkc_availability)(int fd));
