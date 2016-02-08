@@ -1634,7 +1634,6 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
 {
     struct dev_crypto_state *state = ctx->md_data;
-    struct session_op *sess = &state->d_sess;
 
     if (state == NULL) {
         return 0;
@@ -3939,7 +3938,6 @@ static int cryptodev_dh_keygen(DH *dh)
     int ret = 1, q_len = 0;
     unsigned char *q = NULL, *g = NULL, *s = NULL, *w = NULL;
     BIGNUM *pub_key = NULL, *priv_key = NULL;
-    int generate_new_key = 1;
 
     if (dh->priv_key)
         priv_key = dh->priv_key;
@@ -4061,10 +4059,8 @@ cryptodev_dh_compute_key_async(unsigned char *key, const BIGNUM *pub_key,
 {
     struct crypt_kop *kop = malloc(sizeof(struct crypt_kop));
     int ret = 1;
-    int fd, p_len;
+    int p_len;
     unsigned char *padded_pub_key = NULL, *p = NULL;
-
-    fd = *(int *)cookie->eng_handle;
 
     memset(kop, 0, sizeof(struct crypt_kop));
     kop->crk_op = CRK_DH_COMPUTE_KEY;
