@@ -2755,7 +2755,6 @@ cryptodev_dsa_do_sign_async(const unsigned char *dgst, int dlen, DSA *dsa,
         sig->s = dsaret->s;
         /* Call user callback immediately */
         cookie->pkc_callback(cookie, 0);
-        ret = dsaret;
     }
     return ret;
 }
