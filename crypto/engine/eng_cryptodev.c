@@ -85,9 +85,9 @@ struct dev_crypto_state {
     int ivlen;
 # ifdef USE_CRYPTODEV_DIGESTS
     struct hash_op_data hash_op;
-    char dummy_mac_key[HASH_MAX_LEN];
+    unsigned char dummy_mac_key[HASH_MAX_LEN];
     unsigned char digest_res[HASH_MAX_LEN];
-    char *mac_data;
+    unsigned char *mac_data;
     int mac_len;
 # endif
 };
