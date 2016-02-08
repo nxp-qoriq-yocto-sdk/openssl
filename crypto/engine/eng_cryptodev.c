@@ -412,7 +412,9 @@ static int open_dev_crypto(void)
 static int get_dev_crypto(void)
 {
     static int fd = -1;
+# ifndef CRIOGET_NOT_NEEDED
     int retfd;
+# endif
 
     if (fd == -1)
         fd = open_dev_crypto();
