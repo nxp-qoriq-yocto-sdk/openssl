@@ -10,7 +10,7 @@ CFLAG=-g
 MAKEFILE=	Makefile
 AR=		ar r
 
-CFLAGS= $(INCLUDES) $(CFLAG)
+CFLAGS= -Wall -Werror $(INCLUDES) $(CFLAG)
 
 GENERAL=Makefile
 TEST= enginetest.c
