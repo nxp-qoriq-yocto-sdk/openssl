@@ -1592,7 +1592,7 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
      * cryptodev calls and accumulating small amounts of data
      */
     if (ctx->flags & EVP_MD_CTX_FLAG_ONESHOT) {
-        state->mac_data = data;
+        state->mac_data = (void *)data;
         state->mac_len = count;
     } else {
         state->mac_data =
