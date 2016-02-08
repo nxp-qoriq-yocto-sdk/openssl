@@ -3424,7 +3424,7 @@ static int cryptodev_ecdsa_do_sign_async(const unsigned char *dgst,
     if (!(sig->r = BN_new()) || !kop)
         goto err;
     if ((sig->s = BN_new()) == NULL) {
-        BN_free(r);
+        BN_free(sig->r);
         goto err;
     }
 
