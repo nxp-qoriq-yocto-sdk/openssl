@@ -2892,18 +2892,19 @@ static DSA_METHOD cryptodev_dsa = {
     NULL,
     NULL,
     NULL,
-    NULL,
     NULL,                       /* init */
     NULL,                       /* finish */
     0,                          /* flags */
-    NULL                        /* app_data */
+    NULL,                       /* app_data */
+    NULL,
+    NULL,
+    NULL
 };
 
 static ECDSA_METHOD cryptodev_ecdsa = {
     "cryptodev ECDSA method",
     NULL,
     NULL,                       /* ecdsa_sign_setup */
-    NULL,
     NULL,
     NULL,
     NULL,
@@ -4483,13 +4484,13 @@ static DH_METHOD cryptodev_dh = {
     NULL,
     NULL,
     0,                          /* flags */
-    NULL                        /* app_data */
+    NULL,                       /* app_data */
+    NULL,                       /* generate_params */
 };
 
 static ECDH_METHOD cryptodev_ecdh = {
     "cryptodev ECDH method",
     NULL,                       /* cryptodev_ecdh_compute_key */
-    NULL,
     NULL,
     0,                          /* flags */
     NULL                        /* app_data */

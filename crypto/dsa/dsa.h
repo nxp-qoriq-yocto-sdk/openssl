@@ -139,10 +139,11 @@ struct dsa_method {
     /* Can be null */
     int (*bn_mod_exp) (DSA *dsa, BIGNUM *r, BIGNUM *a, const BIGNUM *p,
                        const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
-	int (*dsa_do_sign_async)(const unsigned char *dgst, int dlen, DSA *dsa,
-				DSA_SIG *sig, struct pkc_cookie_s *cookie);
-	int (*dsa_do_verify_async)(const unsigned char *dgst, int dgst_len,
-			     DSA_SIG *sig, DSA *dsa, struct pkc_cookie_s *cookie);
+    int (*dsa_do_sign_async) (const unsigned char *dgst, int dlen, DSA *dsa,
+                              DSA_SIG *sig, struct pkc_cookie_s * cookie);
+    int (*dsa_do_verify_async) (const unsigned char *dgst, int dgst_len,
+                                DSA_SIG *sig, DSA *dsa,
+                                struct pkc_cookie_s * cookie);
     int (*init) (DSA *dsa);
     int (*finish) (DSA *dsa);
     int flags;
@@ -154,7 +155,7 @@ struct dsa_method {
                          BN_GENCB *cb);
     /* If this is non-NULL, it is used to generate DSA keys */
     int (*dsa_keygen) (DSA *dsa);
-	int (*dsa_keygen_async)(DSA *dsa, struct pkc_cookie_s *cookie);
+    int (*dsa_keygen_async) (DSA *dsa, struct pkc_cookie_s * cookie);
 };
 
 struct dsa_st {

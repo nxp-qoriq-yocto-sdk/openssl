@@ -123,9 +123,9 @@ struct dh_method {
     int (*bn_mod_exp) (const DH *dh, BIGNUM *r, const BIGNUM *a,
                        const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx,
                        BN_MONT_CTX *m_ctx);
-	int (*compute_key_async)(unsigned char *key,const BIGNUM *pub_key,DH *dh,
-				struct pkc_cookie_s *cookie);
-	int (*generate_key_async)(DH *dh, struct pkc_cookie_s *cookie);
+    int (*compute_key_async) (unsigned char *key, const BIGNUM *pub_key,
+                              DH *dh, struct pkc_cookie_s * cookie);
+    int (*generate_key_async) (DH *dh, struct pkc_cookie_s * cookie);
     int (*init) (DH *dh);
     int (*finish) (DH *dh);
     int flags;
