@@ -3148,7 +3148,7 @@ static ECDSA_SIG *cryptodev_ecdsa_do_sign(const unsigned char *dgst,
 }
 
 static int cryptodev_ecdsa_verify(const unsigned char *dgst, int dgst_len,
-                                  ECDSA_SIG *sig, EC_KEY *eckey)
+                                  const ECDSA_SIG *sig, EC_KEY *eckey)
 {
     BIGNUM *m = NULL, *p = NULL, *a = NULL, *b = NULL;
     BIGNUM *x = NULL, *y = NULL, *w_x = NULL, *w_y = NULL;
