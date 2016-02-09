@@ -145,7 +145,7 @@ const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha1;
 const EVP_CIPHER cryptodev_tls12_aes_128_cbc_hmac_sha256;
 const EVP_CIPHER cryptodev_tls12_aes_256_cbc_hmac_sha256;
 
-inline int spcf_bn2bin(BIGNUM *bn, unsigned char **bin, int *bin_len)
+inline int spcf_bn2bin(const BIGNUM *bn, unsigned char **bin, int *bin_len)
 {
     int len;
     unsigned char *p;
@@ -167,7 +167,7 @@ inline int spcf_bn2bin(BIGNUM *bn, unsigned char **bin, int *bin_len)
     return 0;
 }
 
-inline int spcf_bn2bin_ex(BIGNUM *bn, unsigned char **bin, int *bin_len)
+inline int spcf_bn2bin_ex(const BIGNUM *bn, unsigned char **bin, int *bin_len)
 {
     int len;
     unsigned char *p;
