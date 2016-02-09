@@ -4014,7 +4014,7 @@ static int cryptodev_dh_keygen(DH *dh)
     }
 
     /* pub_key is or prime length while priv key is of length of order */
-    if (cryptodev_asym(&kop, q_len, w, q_len, s))
+    if (cryptodev_asym(&kop, q_len, (BIGNUM *)w, q_len, (BIGNUM *)s))
         goto sw_try;
 
     dh->pub_key = BN_bin2bn(w, q_len, pub_key);
