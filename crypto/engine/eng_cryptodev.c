@@ -460,8 +460,8 @@ static int get_cryptodev_ciphers(const int **cnids)
         return (0);
     }
     memset(&sess, 0, sizeof(sess));
-    sess.key = (caddr_t) "123456789abcdefghijklmno";
-    sess.mackey = (caddr_t) "123456789ABCDEFGHIJKLMNO";
+    sess.key = (void *)"123456789abcdefghijklmno";
+    sess.mackey = (void *)"123456789ABCDEFGHIJKLMNO";
 
     for (i = 0; ciphers[i].id && count < CRYPTO_ALGORITHM_MAX; i++) {
         if (ciphers[i].nid == NID_undef)
@@ -501,7 +501,7 @@ static int get_cryptodev_digests(const int **cnids)
         return (0);
     }
     memset(&sess, 0, sizeof(sess));
-    sess.mackey = (caddr_t) "123456789abcdefghijklmno";
+    sess.mackey = (void *)"123456789abcdefghijklmno";
     for (i = 0; digests[i].id && count < CRYPTO_ALGORITHM_MAX; i++) {
         if (digests[i].nid == NID_undef)
             continue;
@@ -633,14 +633,14 @@ cryptodev_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     cryp.ses = sess->ses;
     cryp.flags = 0;
     cryp.len = inl;
-    cryp.src = (caddr_t) in;
-    cryp.dst = (caddr_t) out;
+    cryp.src = (void *)in;
+    cryp.dst = (void *)out;
     cryp.mac = 0;
 
     cryp.op = ctx->encrypt ? COP_ENCRYPT : COP_DECRYPT;
 
     if (ctx->cipher->iv_len) {
-        cryp.iv = (caddr_t) ctx->iv;
+        cryp.iv = (void *)ctx->iv;
         if (!ctx->encrypt) {
             iiv = in + inl - ctx->cipher->iv_len;
             memcpy(save_iv, iiv, ctx->cipher->iv_len);
@@ -701,15 +701,15 @@ static int cryptodev_aead_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     }
     cryp.ses = sess->ses;
     cryp.len = state->len;
-    cryp.src = (caddr_t) in;
-    cryp.dst = (caddr_t) out;
+    cryp.src = (void *)in;
+    cryp.dst = (void *)out;
     cryp.auth_src = state->aad;
     cryp.auth_len = state->aad_len;
 
     cryp.op = ctx->encrypt ? COP_ENCRYPT : COP_DECRYPT;
 
     if (ctx->cipher->iv_len) {
-        cryp.iv = (caddr_t) ctx->iv;
+        cryp.iv = (void *)ctx->iv;
         if (!ctx->encrypt) {
             iiv = in + len - ctx->cipher->iv_len;
             memcpy(save_iv, iiv, ctx->cipher->iv_len);
@@ -761,7 +761,7 @@ cryptodev_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     if ((state->d_fd = get_dev_crypto()) < 0)
         return (0);
 
-    sess->key = (caddr_t) key;
+    sess->key = (void *)key;
     sess->keylen = ctx->key_len;
     sess->cipher = cipher;
 
@@ -804,7 +804,7 @@ static int cryptodev_init_aead_key(EVP_CIPHER_CTX *ctx,
 
     memset(sess, 0, sizeof(struct session_op));
 
-    sess->key = (caddr_t) key;
+    sess->key = (void *)key;
     sess->keylen = ctx->key_len;
     sess->cipher = cipher;
 
