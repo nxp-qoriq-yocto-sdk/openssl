@@ -4043,11 +4043,15 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
     memset(&kop, 0, sizeof kop);
     kop.crk_op = CRK_DH_COMPUTE_KEY;
     /* inputs: dh->priv_key pub_key dh->p key */
-    spcf_bn2bin(dh->p, &p, &p_len);
-    spcf_bn2bin_ex(pub_key, &padded_pub_key, &p_len);
-    if (bn2crparam(dh->priv_key, &kop.crk_param[0]))
+    if (spcf_bn2bin(dh->p, &p, &p_len) != 0) {
         goto sw_try;
-
+    }
+    if (spcf_bn2bin_ex(pub_key, &padded_pub_key, &p_len) != 0) {
+        goto sw_try;
+    }
+    if (bn2crparam(dh->priv_key, &kop.crk_param[0]) != 0) {
+        goto sw_try;
+    }
     kop.crk_param[1].crp_p = padded_pub_key;
     kop.crk_param[1].crp_nbits = p_len * 8;
     kop.crk_param[2].crp_p = p;
@@ -4074,10 +4078,13 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
     kop.crk_param[3].crp_p = NULL;
     zapparams(&kop);
     return (dhret);
+
  sw_try:
     {
         const DH_METHOD *meth = DH_OpenSSL();
 
+        free(p);
+        free(padded_pub_key);
         dhret = (meth->compute_key) (key, pub_key, dh);
     }
     return (dhret);
