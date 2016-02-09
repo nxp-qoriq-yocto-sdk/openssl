@@ -2109,25 +2109,42 @@ static int
 cryptodev_rsa_mod_exp_async(BIGNUM *r0, const BIGNUM *I, RSA *rsa,
                             BN_CTX *ctx, struct pkc_cookie_s *cookie)
 {
-    struct crypt_kop *kop = malloc(sizeof(struct crypt_kop));
+    struct crypt_kop *kop;
     int ret = 1, f_len, p_len, q_len;
     unsigned char *f = NULL, *p = NULL, *q = NULL, *dp = NULL, *dq =
         NULL, *c = NULL;
 
-    if (!rsa->p || !rsa->q || !rsa->dmp1 || !rsa->dmq1 || !rsa->iqmp || !kop) {
+    if (!rsa->p || !rsa->q || !rsa->dmp1 || !rsa->dmq1 || !rsa->iqmp) {
         return (0);
+    }
+
+    kop = malloc(sizeof(struct crypt_kop));
+    if (kop == NULL) {
+        goto err;
     }
 
     kop->crk_oparams = 0;
     kop->crk_status = 0;
     kop->crk_op = CRK_MOD_EXP_CRT;
     f_len = BN_num_bytes(rsa->n);
-    spcf_bn2bin_ex(I, &f, &f_len);
-    spcf_bn2bin(rsa->p, &p, &p_len);
-    spcf_bn2bin(rsa->q, &q, &q_len);
-    spcf_bn2bin_ex(rsa->dmp1, &dp, &p_len);
-    spcf_bn2bin_ex(rsa->iqmp, &c, &p_len);
-    spcf_bn2bin_ex(rsa->dmq1, &dq, &q_len);
+    if (spcf_bn2bin_ex(I, &f, &f_len) != 0) {
+        goto err;
+    }
+    if (spcf_bn2bin(rsa->p, &p, &p_len) != 0) {
+        goto err;
+    }
+    if (spcf_bn2bin(rsa->q, &q, &q_len) != 0) {
+        goto err;
+    }
+    if (spcf_bn2bin_ex(rsa->dmp1, &dp, &p_len) != 0) {
+        goto err;
+    }
+    if (spcf_bn2bin_ex(rsa->iqmp, &c, &p_len) != 0) {
+        goto err;
+    }
+    if (spcf_bn2bin_ex(rsa->dmq1, &dq, &q_len) != 0) {
+        goto err;
+    }
     /* inputs: rsa->p rsa->q I rsa->dmp1 rsa->dmq1 rsa->iqmp */
     kop->crk_param[0].crp_p = p;
     kop->crk_param[0].crp_nbits = p_len * 8;
