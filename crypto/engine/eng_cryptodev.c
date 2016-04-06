@@ -905,6 +905,10 @@ static int cryptodev_cbc_hmac_sha1_ctrl(EVP_CIPHER_CTX *ctx, int type,
                 maclen = SHA256_DIGEST_LENGTH;
                 aad_needs_fix = true;
                 break;
+            default:
+                fprintf(stderr, "%s: unsupported NID: %d\n",
+                        __func__, ctx->cipher->nid);
+                return -1;
             }
 
             /* Correct length for AAD Length field */
